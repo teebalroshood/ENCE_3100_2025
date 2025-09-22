@@ -201,19 +201,6 @@ module main(
 	//******************
 	
 	// TODO
-	/*
-	 wire [5:0] bin = SW[5:0];  // binary input (0–63)
-    wire [3:0] tens;
-    wire [3:0] ones;
-
-    // Convert binary to decimal digits
-    assign tens = bin / 10;
-    assign ones = bin % 10;
-
-    // Drive 7-segment displays
-    hex7seg h0 (ones, HEX0);   // ones digit
-    hex7seg h1 (tens, HEX1);   // tens digit
-	 */
 	 
 	//******************
 endmodule
