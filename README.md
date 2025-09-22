@@ -1,10 +1,10 @@
 # Laboratory Exercise 2 – Numbers and Displays
 
 ## Course Info
-- **Course:** [Insert course name/code]  
-- **Instructor:** [Insert instructor name]  
-- **Date:** [Insert submission date]  
-- **Student Name:** [Insert your name]  
+- **Course:** Advanced digital design   
+- **Instructor:** Dr. Goncalo Martins  
+- **Date:** 9/22/2025 
+- **Student Name:** Teeb Alroshood 
 
 ---
 
