@@ -99,7 +99,7 @@ Create a circuit that **flashes digits 0–9** on `HEX0`:
 
 ![One-Second Counter](images/part4_one_sec_counter.png)
 > *(Insert simulation waveform or HEX display photo showing digits changing.)*
-<img src="img/Part_4.GIF" alt="part4" width="500"/>
+<img src="images/Part_4.GIF" alt="part4" width="500"/>
 
 ---
 
