@@ -55,7 +55,7 @@ Design an **8-bit synchronous counter** built from **T flip-flops**, similar to 
 
 ![8-bit Counter Diagram](images/part1.GIF)
 > *(Insert schematic or Quartus block diagram screenshot.)*
-<img src="images/Part_1.gif" alt="part1" width="500"/>
+<img src="images/Part_1.GIF" alt="part1" width="500"/>
 ---
 
 ## 🧮 Part II – Register-based Counter
