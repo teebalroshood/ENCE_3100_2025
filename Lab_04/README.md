@@ -86,7 +86,7 @@ Use a **Library of Parameterized Modules (LPM)** component to create a 16-bit co
 
 ![LPM Wizard Setup](images/part3_lpm.png)
 > *(Insert screenshot of Quartus LPM Counter setup window.)*
-<img src="img/Part_3.GIF" alt="part3" width="500"/>
+<img src="images/Part_3.GIF" alt="part3" width="500"/>
 
 ---
 
@@ -120,7 +120,7 @@ Display **“HELLO”** on `HEX7–HEX0` in a **ticker-tape fashion**:
 
 ![HELLO Animation](images/part5_hello_scroll.png)
 > *(Insert GIF or sequence showing scrolling text.)*
-<img src="img/Part_5.GIF" alt="part5" width="500"/>
+<img src="images/Part_5.GIF" alt="part5" width="500"/>
 
 ---
 
