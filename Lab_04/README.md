@@ -55,7 +55,7 @@ Design an **8-bit synchronous counter** built from **T flip-flops**, similar to 
 
 ![8-bit Counter Diagram](images/part1.GIF)
 > *(Insert schematic or Quartus block diagram screenshot.)*
-<img src="images/Part_1.gif" alt="part1" width="500"/>
+<img src="images/Part_1.GIF" alt="part1" width="500"/>
 ---
 
 ## 🧮 Part II – Register-based Counter
@@ -73,7 +73,7 @@ Q <= Q + 1;
 
 ![RTL Comparison](images/part2_rtl.png)
 > *(Insert RTL schematic comparison image.)*
-<img src="images/Part_2.gif" alt="part2" width="500"/>
+<img src="images/Part_2.GIF" alt="part2" width="500"/>
 ---
 
 ## 🧰 Part III – LPM Counter
@@ -86,7 +86,7 @@ Use a **Library of Parameterized Modules (LPM)** component to create a 16-bit co
 
 ![LPM Wizard Setup](images/part3_lpm.png)
 > *(Insert screenshot of Quartus LPM Counter setup window.)*
-<img src="img/Part_3.gif" alt="part3" width="500"/>
+<img src="images/Part_3.GIF" alt="part3" width="500"/>
 
 ---
 
@@ -99,7 +99,7 @@ Create a circuit that **flashes digits 0–9** on `HEX0`:
 
 ![One-Second Counter](images/part4_one_sec_counter.png)
 > *(Insert simulation waveform or HEX display photo showing digits changing.)*
-<img src="img/Part_4.gif" alt="part4" width="500"/>
+<img src="images/Part_4.GIF" alt="part4" width="500"/>
 
 ---
 
@@ -120,7 +120,7 @@ Display **“HELLO”** on `HEX7–HEX0` in a **ticker-tape fashion**:
 
 ![HELLO Animation](images/part5_hello_scroll.png)
 > *(Insert GIF or sequence showing scrolling text.)*
-<img src="img/Part_5.gif" alt="part5" width="500"/>
+<img src="images/Part_5.GIF" alt="part5" width="500"/>
 
 ---
 
