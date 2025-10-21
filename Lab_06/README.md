@@ -22,6 +22,9 @@ are loaded\
 ## **Block Diagram**
 <img src="images/block_diagram.png" alt="Block Diagram" width="500"/>
 
+## **Board**
+<img src="images/board.GIF" alt="Board" width="500"/>
+
 
 ## 🧩 **Module Declaration**
 
