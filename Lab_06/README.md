@@ -18,6 +18,11 @@ are loaded\
 3. **PLAYER2** -- Player 2's timer counts down\
 4. **END** -- game ends when a timer reaches zero
 
+
+## **Block Diagram**
+<img src="images/block_diagram.png" alt="Block Diagram" width="500"/>
+
+
 ## 🧩 **Module Declaration**
 
 ``` verilog
