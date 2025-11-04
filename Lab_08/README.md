@@ -12,8 +12,6 @@ The system includes:
 ---
 
 ## 🎬 System Explanation GIF  
-> _Insert demo GIF below (waveforms / FPGA screenshot / block animation)_
-
 ![project-demo](./images/lab_08.GIF)
 ---
 
