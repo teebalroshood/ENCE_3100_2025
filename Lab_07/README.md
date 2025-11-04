@@ -1,177 +1,113 @@
-# 🧠 UART Word Detector on DE10-Lite
+# Lab 07 --- FSM, 5-Second Counter, and 7-Segment Display
 
-> This project implements a UART communication system with an FSM word detector. It receives data from a UART connection, displays the received bytes on LEDs, and detects when the word **"hello"** is received, showing it on the seven-segment displays.
+## 🎬 System Overview GIF
 
----
-
-## 📸 Project Image
 <img src="images/lab7.GIF" alt="lab07" width="500"/>
-![Project Photo](./images/project_photo.jpg)
-> *(Replace `project_photo.jpg` with your actual image.)*
 
----
+------------------------------------------------------------------------
 
-## ⚙️ Hardware Used
+## ✅ Finite State Machine (FSM) Explanation
 
-- **DE10-Lite FPGA Board**  
-- **MAX10 FPGA (50 MHz Clock)**  
-- **UART Connection via GPIO[35:33]**  
-- **Switches (SW[9:0])**  
-- **LEDs (LEDR[9:0])**  
-- **Seven Segment Displays (HEX0–HEX6)**
+The FSM controls the system behavior based on inputs and timing
+conditions. It transitions between predefined states depending on the
+current state, user input, and timing signals.
 
----
+### FSM Core Concepts
 
-## 💻 Software Used
+  Feature           Description
+  ----------------- ---------------------------------------------
+  **States**        IDLE → COUNT → DONE
+  **Reset**         Returns to IDLE
+  **Start Input**   Moves system from IDLE → COUNT
+  **Done Signal**   Indicates 5 seconds elapsed → moves to DONE
 
-- **Intel Quartus Prime 2021 (or later)**  
-- **ModelSim (optional for simulation)**
+### FSM Operation Flow
 
----
+    Reset → IDLE → (Start) → COUNT → (5 sec reached) → DONE
 
-## 📜 Verilog Code
+### Simplified Description
 
-```verilog
-`default_nettype none
+> The FSM decides **what the system should be doing next** based on time
+> and button input.
 
-module main(
-    input        MAX10_CLK1_50,
-    input  [9:0] SW,
-    output [9:0] LEDR,
-    inout  [35:0] GPIO,
-    output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6
-);
+------------------------------------------------------------------------
 
-    wire w_clk = MAX10_CLK1_50;
+## ⏱️ 5-Second Counter Explanation
 
-    // UART receiver signals
-    wire RxD_data_ready;
-    wire [7:0] RxD_data;
-    reg  [7:0] GPout;
+The counter generates a 5‑second delay using the 50 MHz FPGA clock.
 
-    // UART Receiver (115200 baud)
-    async_receiver RX (
-        .clk(w_clk),
-        .RxD(GPIO[35]),
-        .RxD_data_ready(RxD_data_ready),
-        .RxD_data(RxD_data)
-    );
+### Breakdown
 
-    // UART Transmitter (echo back)
-    async_transmitter TX (
-        .clk(w_clk),
-        .TxD(GPIO[33]),
-        .TxD_start(RxD_data_ready),
-        .TxD_data(RxD_data)
-    );
+  Step            Description
+  --------------- -----------------------------
+  Clock Divider   Converts 50 MHz → 1 Hz
+  5‑Counter       Counts 5 pulses (5 seconds)
+  Done Signal     Goes high after 5 seconds
 
-    // Store received byte
-    always @(posedge w_clk) begin
-        if (RxD_data_ready)
-            GPout <= RxD_data;
-    end
+### Simple View
 
-    // Display received byte on LEDs
-    assign LEDR[7:0] = GPout;
+> Think of it as a **5‑second stopwatch** that tells the FSM when time
+> is up.
 
-    // FSM word detector for "hello"
-    FSM_Word_Detecter word_detector (
-        .clk(w_clk),
-        .reset(SW[9]),
-        .RXD_data(GPout),
-        .data_ready(RxD_data_ready),
-        .HEX0(HEX0), .HEX1(HEX1), .HEX2(HEX2), .HEX3(HEX3), .HEX4(HEX4)
-    );
+------------------------------------------------------------------------
 
-    // Blank unused HEX displays
-    assign HEX5 = 7'b1111111;
-    assign HEX6 = 7'b1111111;
+## 🧠 char2seg --- 7 Segment Decoder
 
-endmodule
+The `char2seg` module converts a 4-bit input (0‑F) into 7‑segment
+display signals.
 
-`default_nettype wire
-```
+Example: - Input: `4'hA` - Output: LED pattern showing **A** on HEX
+display
 
----
+------------------------------------------------------------------------
 
-## 🧠 Explanation
+## 🧱 System Block Diagram
 
-### 🪐 Overview
-This Verilog module connects the **UART communication** system with an **FSM-based word detector**.  
-The design listens for incoming serial data through GPIO pins, echoes it back through UART, displays the ASCII value on LEDs, and uses an FSM to detect specific words (like `"hello"`).
+    +-----------------------+
+    |         FSM           |
+    | IDLE → COUNT → DONE   |
+    +----------+------------+
+               |
+               v
+    +----------+------------+
+    |   5‑Second Counter    |
+    | Clock Divide + Timer  |
+    +----------+------------+
+               |
+               v
+    +----------+------------+
+    | 7‑Segment Display     |
+    |     char2seg          |
+    +-----------------------+
 
----
+------------------------------------------------------------------------
 
-### ⚡ UART Receiver (`async_receiver`)
-- Receives serial data from `GPIO[35]`.
-- Converts serial data into 8-bit parallel bytes.
-- Sets `RxD_data_ready` high when a full byte is received.
+## 📂 Files Included
 
-### ⚙️ UART Transmitter (`async_transmitter`)
-- Sends the received data back through `GPIO[33]`.
-- Starts transmission when `RxD_data_ready` is high (creating an “echo” effect).
+  File             Purpose
+  ---------------- ---------------------------
+  `fsm.v`          Controls states
+  `counter_5s.v`   Generates 5s timing pulse
+  `char2seg.v`     7‑segment decoder
 
-### 💾 Data Storage and LEDs
-```verilog
-always @(posedge w_clk) begin
-    if (RxD_data_ready)
-        GPout <= RxD_data;
-end
-assign LEDR[7:0] = GPout;
-```
-- Each received byte is stored in `GPout`.
-- The value is shown on the 8 lower LEDs (LEDR[7:0]) as binary representation.
+------------------------------------------------------------------------
 
-### 🔤 FSM Word Detector
-The FSM module (`FSM_Word_Detecter`) checks each received byte.  
-When it detects the sequence of characters **‘h’ → ‘e’ → ‘l’ → ‘l’ → ‘o’**, it displays **HELLO** on the seven-segment displays (HEX0–HEX4).
+## ✅ To‑Do / Insert Areas
 
-### 🔲 Seven Segment Displays
-- `HEX0–HEX4` show the detected letters.
-- `HEX5` and `HEX6` are turned off using all segments high (`7'b1111111`).
+-   [ ] Insert circuit GIF
+-   [ ] Add Quartus pin assignment table
+-   [ ] Insert timing waveforms screenshots
 
----
+------------------------------------------------------------------------
 
-## 🧩 Block Diagram
+## 🧪 Demo Instructions
 
-![Block Diagram](./images/block_diagram.png)
+1.  Program FPGA with Quartus `.sof` file\
+2.  Press **Start Button** to begin counting\
+3.  Observe 7‑segment display count and timeout
 
----
+------------------------------------------------------------------------
 
-## 🏁 How to Run
+## 👨‍💻 Author
 
-1. Open **Quartus Prime** and create a new project.  
-2. Add all Verilog source files (`main.v`, `async_receiver.v`, `async_transmitter.v`, `FSM_Word_Detecter.v`).  
-3. Assign pins to match the **DE10-Lite** board.  
-4. Compile the design.  
-5. Connect a USB-to-UART cable to GPIO pins (35 for RX, 33 for TX).  
-6. Send characters using a terminal program (e.g., PuTTY).  
-7. Observe LEDs and HEX displays for the word detection.
-
----
-
-## 📂 File Structure
-
-```
-uart_word_detector/
-│
-├── src/                    # Verilog source files
-├── images/                 # Photos and diagrams
-├── simulation/             
-└── README.md
-```
-
----
-
-## ✨ Author
-
-**Your Name**  
-*Lab: UART and FSM Word Detection*  
-📅 *Date: YYYY-MM-DD*
-
----
-
-## 📸 Example Photo Section
-
-![Example Board](./images/example_board.jpg)
-> *(Include an image of your DE10-Lite board setup here.)*
+Lab Report for **ENCE 3100 --- Digital Logic**
