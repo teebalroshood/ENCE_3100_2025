@@ -1,5 +1,3 @@
-![Block Diagram](./images/lab_08.GIF)
-
 # 4-Bit Accumulator System (FPGA)
 
 This project implements a **4-bit accumulator-based datapath** using Verilog.  
@@ -16,8 +14,7 @@ The system includes:
 ## 🎬 System Explanation GIF  
 > _Insert demo GIF below (waveforms / FPGA screenshot / block animation)_
 
-![project-demo](path/to/your.gif)
-
+![project-demo](./images/lab_08.GIF)
 ---
 
 ## 🧠 High-Level Overview
