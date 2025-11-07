@@ -71,6 +71,43 @@ The main board provides a 50MHz clock (MAX10_CLK1_50)1, which is too fast for a 
         3. The time for this count is calculated as:
         $$\text{Time}=\frac{\text{Cycles}}{\text{Frequency}}=\frac{50,000,000\text{ Cycles}}{50,000,000\text{ Cycles/s}}=1 \text{ Second}$$
 
+``` verilog
+module counter_1s(
+	input		i_clk,
+	input 	i_reset,
+	input 	i_enable,
+	output	reg o_tick,
+	output	reg o_strobe
+);
+
+	// Counter Template
+	parameter DIVISOR = 50000000;  // 1 s
+	reg [25:0] counter;  // 2^26 = 65,536 > 50,000
+
+	always @(posedge i_clk)
+		if(i_reset) begin
+			counter <= 0;
+			o_tick <= 0;
+		end 
+		else begin
+		
+			if(i_enable) begin		
+				// Comparator
+				if(counter == DIVISOR - 1) begin
+					counter <= 0;
+					o_tick <= ~o_tick;  // toggle LED
+					o_strobe <= 1'b1;
+				end 
+				else begin
+					counter <= counter + 1;
+					o_strobe <= 1'b0;
+				end
+			end
+		end
+
+endmodule
+```
+
 ### 2. Player Timers (counter_Nbits)
 This is a generic, parameterized module used to store and decrement each player's time.
 Purpose: To hold a player's remaining time and count down when enabled by the FSM.
@@ -99,6 +136,36 @@ Load: The `i_reset` port is used as a "load" signal.When high, it loads the 
         - The module's direction is hard-coded by `i_dir=1`, which means **"count down"**.
         - When the FSM enables the counter `i_enable = 1` and the 1-second tick arrives, the counter performs this operation:
             `o_count -= 1`
+
+``` verilog
+module counter_Nbits #
+(
+	parameter N = 10 // Default 10bits
+)
+(
+	input		i_clk,
+	input 	i_reset,
+	input 	i_enable,
+	input 	[N-1:0] i_data,
+	input		i_dir,
+	output	reg [N-1:0] o_count
+);
+
+	always @(posedge i_clk)
+		if(i_reset)
+			o_count <= i_data;
+		else begin
+			if(i_enable) begin
+				if(i_dir)
+					o_count <= o_count + 10'd1;
+				else
+					o_count <= o_count - 10'd1;
+			end
+		end
+
+endmodule
+
+```
 
 ## 🔢 **State Encoding**
 
