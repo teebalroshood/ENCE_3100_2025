@@ -98,7 +98,7 @@ Load: The `i_reset` port is used as a "load" signal.When high, it loads the 
     - **The Math (Counting Down)**
         - The module's direction is hard-coded by `i_dir=1`, which means **"count down"**.
         - When the FSM enables the counter `i_enable = 1` and the 1-second tick arrives, the counter performs this operation:
-            $$\text{o\_count} = \text{o\_count} - 1$$
+            `o_count -= 1`
 
 ## 🔢 **State Encoding**
 
