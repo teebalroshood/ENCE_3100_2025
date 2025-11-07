@@ -96,9 +96,9 @@ Load: The `i_reset` port is used as a "load" signal.When high, it loads the 
         - In `main.v`, this value is hard-coded to `10'd5`.
         - **Operation:** $o\_count \le 5$. This sets the **start time to 5 seconds**.
     - **The Math (Counting Down)**
-        - The module's direction is hard-coded by $i\_dir(1'b0)$, which means **"count down"**.
+        - The module's direction is hard-coded by `i_dir=1`, which means **"count down"**.
         - When the FSM enables the counter `i_enable = 1` and the 1-second tick arrives, the counter performs this operation:
-            $$o\_count = o\_count - 1$$
+            $$\text{o\_count} = \text{o\_count} - 1$$
 
 ## 🔢 **State Encoding**
 
