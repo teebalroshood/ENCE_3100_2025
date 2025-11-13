@@ -1,0 +1,7 @@
+
+State Machine - |main|SystemAdjust:SA|state
+Name state.ALARM_M state.ALARM_H state.TIME_M state.TIME_H 
+state.TIME_H 0 0 0 0 
+state.TIME_M 0 0 1 1 
+state.ALARM_H 0 1 0 1 
+state.ALARM_M 1 0 0 1 

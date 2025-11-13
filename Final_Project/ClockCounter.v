@@ -1,0 +1,31 @@
+module ClockCounter(
+    input wire clk_50MHz,
+    input wire reset,
+    output reg [4:0] hours,
+    output reg [5:0] minutes
+);
+    reg [25:0] sec_counter;
+
+    always @(posedge clk_50MHz or posedge reset) begin
+        if(reset) begin
+            sec_counter <= 0;
+            hours <= 5'd12;
+            minutes <= 6'd0;
+        end else begin
+            if(sec_counter == 50_000_000-1) begin
+                sec_counter <= 0;
+                if(minutes == 59) begin
+                    minutes <= 0;
+                    if(hours == 23)
+                        hours <= 0;
+                    else
+                        hours <= hours + 1;
+                end else begin
+                    minutes <= minutes + 1;
+                end
+            end else begin
+                sec_counter <= sec_counter + 1;
+            end
+        end
+    end
+endmodule
