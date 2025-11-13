@@ -125,122 +125,182 @@ module main(
 endmodule
 ```
 ---
+# Digital Clock & Alarm System — README
 
+## Overview  
+This project implements a simple digital clock system on the DE10-Lite FPGA.  
+It includes:
 
-Line-by-Line Explanation
+- A real-time clock counter  
+- Adjustable time settings  
+- Adjustable alarm settings  
+- Clean button handling (debouncing + edge detection)  
+- 7-segment display output  
+- A buzzer that activates when the time matches the alarm  
 
-Below is a simple, human‑friendly explanation of how the entire code works. The goal is to make it feel natural and easy to understand.
+The goal of this README is to explain the entire design in a clear, human-like way.
 
-Top of File
+---
 
-timescale 1ns / 1ps – Tells the simulator how to treat delays.
+# Code Explanation
 
-default_nettype none – Forces you to explicitly declare every wire and reg. This prevents bugs caused by typos.
+Below is a simple, friendly explanation of each part of the Verilog code.
 
-Module Inputs and Outputs
+---
 
-The module is named main, and it has:
+## Debouncing the Buttons  
+Mechanical buttons do not produce clean on/off signals. When pressed, they bounce and cause rapid unintended transitions.
 
-A 50 MHz clock (main timing source)
+The two debouncer modules:
 
-Two push buttons (KEY0 = reset, KEY1 = mode cycle)
-
-Two switches (SW0 = increment, SW1 = decrement)
-
-LEDs to show what field you're adjusting
-
-Six HEX displays
-
-A buzzer output that activates when the alarm matches the clock
-
-Debouncing the Buttons
-
-Physical buttons bounce (they rapidly toggle between 0 and 1 when pressed). So we clean the signal:
-
+```
 Debouncer D0(...)
 Debouncer D1(...)
+```
 
-These give us two clean signals: key0_db and key1_db.
+These convert the raw KEY0 and KEY1 inputs into stable, clean signals:
 
-Detecting a Rising Edge
+- `key0_db` — cleaned reset button  
+- `key1_db` — cleaned mode-cycle button  
 
-We only want KEY1 to trigger once per press, not continuously.
+This ensures that the system reacts exactly once per press.
 
+---
+
+## Detecting Single Button Presses  
+Even after debouncing, holding a button down keeps the signal high.  
+To avoid repeated triggers, a one-clock-cycle edge detector is used:
+
+```
 always @(posedge MAX10_CLK1_50) key1_prev <= key1_db;
 assign key1_edge = key1_db & ~key1_prev;
+```
 
-This generates a 1‑clock‑long pulse each time KEY1 is pressed.
+This detects the moment KEY1 goes from 0 → 1 and produces a **single pulse**.  
+This pulse is used to cycle between adjustment modes (selecting hours/minutes for editing).
 
-Automatic Clock Counter
+---
 
-This is your live running clock.
+## Automatic Clock Counter  
+A module named `ClockCounter` keeps real time:
 
+```
 ClockCounter CC(...)
+```
 
+It uses the 50 MHz clock to increment minutes and hours.  
 It outputs:
 
-auto_hours
+- `auto_hours`  
+- `auto_minutes`  
 
-auto_minutes
+These represent the running time of the clock.  
+They are used unless the user enters adjustment mode.
 
-This keeps time automatically in the background.
+---
 
-SystemAdjust Module
+## SystemAdjust Module  
+This is the central controller of the system:
 
-This is the “brains” of the design. It manages:
+```
+SystemAdjust SA(...)
+```
 
-Adjusting the current time
+It manages:
 
-Adjusting the alarm time
+### 1. Switching Between Modes  
+Each press of KEY1 (after edge detection) moves through different adjustment modes:
 
-Selecting which field you’re editing (hours tens, hours units, minutes tens, etc.)
+- Hours tens  
+- Hours units  
+- Minutes tens  
+- Minutes units  
+- Alarm hours  
+- Alarm minutes  
 
-Updating the LEDs to show your selection
+The currently selected mode is displayed using the LEDs.
 
-Sending data to the 7‑seg displays
+---
 
-Inputs:
+### 2. Incrementing / Decrementing Values  
+Two switches are used:
 
-Cleaned button presses
+- `SW0` → increment  
+- `SW1` → decrement  
 
-Increment/decrement switches
+Depending on the active mode, these change the selected digit.
 
-The auto‑running time
+---
 
-Outputs:
+### 3. Formatting Digits for 7-Segment Displays  
+The module outputs digit values such as:
 
-Adjusted hours and minutes
+- `adj_hours_units`  
+- `adj_hours_tens`  
+- `adj_minutes_units`  
+- `adj_minutes_tens`  
 
-Alarm settings
+These are ready to be displayed directly by the HEX modules.
 
-The values for each 7‑segment digit
+---
 
-LED indicators
+### 4. Managing Time Outputs  
+The module outputs two sets of values:
 
-This module cycles through adjustment modes using KEY1. SW0/SW1 then change the selected value.
+1. **Current Time (adjustable)**  
+   - `time_hours`  
+   - `time_minutes`  
 
-Buzzer Logic
+2. **Alarm Time**  
+   - `alarm_hours`  
+   - `alarm_minutes`  
 
-This line checks:
+These signals are used by both the display and the buzzer.
 
+---
+
+## Buzzer Logic  
+The buzzer should activate when the current time matches the alarm time.
+
+This logic checks for equality:
+
+```
 (time_hours == alarm_hours) && (time_minutes == alarm_minutes)
+```
 
-If both match, the buzzer turns on.
+If true, the buzzer module produces a square wave on `BuzzerOut`.
 
-The buzzer module receives buzzer_en and outputs a square wave.
+---
 
-HEX Display Drivers
+## 7-Segment Display Drivers  
+Each of the six HEX displays uses a decoder:
 
-Each 7‑segment display uses a hex‑to‑7‑seg module:
-
+```
 Hex7Seg H0(...)
 Hex7Seg H1(...)
 ...
+```
 
-You are showing:
+These convert a 4-bit number (0–9) into the correct pattern for the display.
 
-Current adjusted time (hours & minutes)
+The displays show:
 
-Alarm time (hours & minutes)
+- Adjusted hours/minutes  
+- Alarm hours/minutes  
 
-The display is updated in real‑time as the user adjusts values.
+in a clean and readable format.
+
+---
+
+# Summary  
+This project ties together several digital design concepts:
+
+- Debouncing  
+- Edge detection  
+- Counters  
+- Multiplexed data paths  
+- Digit formatting  
+- Simple alarm logic  
+- FPGA 7-segment display control  
+
+The result is a fully functional adjustable digital clock with an alarm and buzzer.
