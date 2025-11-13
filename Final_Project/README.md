@@ -125,3 +125,122 @@ module main(
 endmodule
 ```
 ---
+
+
+Line-by-Line Explanation
+
+Below is a simple, human‑friendly explanation of how the entire code works. The goal is to make it feel natural and easy to understand.
+
+Top of File
+
+timescale 1ns / 1ps – Tells the simulator how to treat delays.
+
+default_nettype none – Forces you to explicitly declare every wire and reg. This prevents bugs caused by typos.
+
+Module Inputs and Outputs
+
+The module is named main, and it has:
+
+A 50 MHz clock (main timing source)
+
+Two push buttons (KEY0 = reset, KEY1 = mode cycle)
+
+Two switches (SW0 = increment, SW1 = decrement)
+
+LEDs to show what field you're adjusting
+
+Six HEX displays
+
+A buzzer output that activates when the alarm matches the clock
+
+Debouncing the Buttons
+
+Physical buttons bounce (they rapidly toggle between 0 and 1 when pressed). So we clean the signal:
+
+Debouncer D0(...)
+Debouncer D1(...)
+
+These give us two clean signals: key0_db and key1_db.
+
+Detecting a Rising Edge
+
+We only want KEY1 to trigger once per press, not continuously.
+
+always @(posedge MAX10_CLK1_50) key1_prev <= key1_db;
+assign key1_edge = key1_db & ~key1_prev;
+
+This generates a 1‑clock‑long pulse each time KEY1 is pressed.
+
+Automatic Clock Counter
+
+This is your live running clock.
+
+ClockCounter CC(...)
+
+It outputs:
+
+auto_hours
+
+auto_minutes
+
+This keeps time automatically in the background.
+
+SystemAdjust Module
+
+This is the “brains” of the design. It manages:
+
+Adjusting the current time
+
+Adjusting the alarm time
+
+Selecting which field you’re editing (hours tens, hours units, minutes tens, etc.)
+
+Updating the LEDs to show your selection
+
+Sending data to the 7‑seg displays
+
+Inputs:
+
+Cleaned button presses
+
+Increment/decrement switches
+
+The auto‑running time
+
+Outputs:
+
+Adjusted hours and minutes
+
+Alarm settings
+
+The values for each 7‑segment digit
+
+LED indicators
+
+This module cycles through adjustment modes using KEY1. SW0/SW1 then change the selected value.
+
+Buzzer Logic
+
+This line checks:
+
+(time_hours == alarm_hours) && (time_minutes == alarm_minutes)
+
+If both match, the buzzer turns on.
+
+The buzzer module receives buzzer_en and outputs a square wave.
+
+HEX Display Drivers
+
+Each 7‑segment display uses a hex‑to‑7‑seg module:
+
+Hex7Seg H0(...)
+Hex7Seg H1(...)
+...
+
+You are showing:
+
+Current adjusted time (hours & minutes)
+
+Alarm time (hours & minutes)
+
+The display is updated in real‑time as the user adjusts values.
