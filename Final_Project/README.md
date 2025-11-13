@@ -6,11 +6,10 @@
 ---
 
 ## Overview
-This README explains the full Verilog project in a clear, simple, human-like way. It includes detailed explanations for each part of the code, a block diagram, and placeholders for two GIFs you will add later.
-
+this project is to simulate an alarm clock using DE10-lite FPGA board
 ---
 
-## GIF Placeholder 1
+## Alarm Clock simulation
 
 <img src="images/sim1.gif" alt="Simulation1" width="500"/>
 
