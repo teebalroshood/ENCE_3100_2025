@@ -11,7 +11,7 @@ This README explains the full Verilog project in a clear, simple, human-like way
 ---
 
 ## GIF Placeholder 1
-*(Insert your first GIF here)*
+
 <img src="images/sim1.gif" alt="Simulation1" width="500"/>
 
 <img src="images/sim2.gif" alt="Simulation1" width="500"/>
@@ -19,7 +19,7 @@ This README explains the full Verilog project in a clear, simple, human-like way
 ---
 
 ## Block Diagram
-Below is a simple block diagram representation of the system. You may replace it with a proper graphic later:
+Below is a simple block diagram representation of the system:
 
 ```
      +---------------------+
@@ -45,7 +45,6 @@ Below is a simple block diagram representation of the system. You may replace it
 ---
 
 ## Full Code
-Paste your full project code below so the report is self-contained:
 
 ```verilog
 `timescale 1ns / 1ps
@@ -126,49 +125,4 @@ module main(
 
 endmodule
 ```
-
-
 ---
-
-## Line-by-Line Explanation
-Below is a human-like explanation for each major section. Replace or expand depending on the actual code you paste.
-
-### 1. `default_nettype none`
-This line forces Verilog to require every signal to be explicitly declared. It helps you avoid accidental wires created by typos.
-
-### 2. Module Declaration
-Here the module begins and defines all inputs, outputs, and bidirectional pins. This section describes exactly what signals enter and exit the FPGA.
-
-### 3. Clock Wiring
-If the code generates or divides clocks, this part sets up internal timing used for counters or FSM transitions.
-
-### 4. State Machine
-If your project uses an FSM, this section will:
-- Define named states
-- Implement state transitions
-- Handle conditions like button presses, counters, or switches
-
-Each state will typically control what the system displays or how it behaves.
-
-### 5. Counters
-If your project includes counters, here you would find:
-- A clock-driven counter that increments or decrements
-- Reset conditions
-- Any timing-related behavior
-
-### 6. Output Logic
-This is where values get sent to HEX displays, LEDs, GPIO pins, etc. It may include 7‑segment encoding or output formatting.
-
-### 7. Always Blocks
-These run on either clock edges or signal changes. This is where the main behavior of the project comes together.
-
----
-
-## GIF Placeholder 2
-*(Insert your second GIF here)*
-
----
-
-## Conclusion
-This README gives structure to your report and explains how the code works step-by-step. Add your exact Verilog code and I will automatically help you generate the full detailed explanation if you want.
-
