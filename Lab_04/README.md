@@ -168,6 +168,120 @@ Clock ---------->| 1 Hz Tick  |----+
            HEX1         HEX0
 ```
 
+
+# 1-Second Counter Module Explanation
+
+This document explains the design and behavior of the 1-second hardware counter used in Lab 02.  
+The counter divides the 50 MHz FPGA system clock down to a clean 1-second time base and produces two useful outputs:
+
+- **o_tick** – a slow-toggling signal that changes state every second  
+- **o_strobe** – a one-clock-wide pulse that occurs exactly once per second  
+
+These outputs are often used for timers, stopwatches, blinking LEDs, or time-based logic.
+
+---
+
+## Block Diagram
+
+```
+     +----------------------------+
+     |        counter_1s          |
+     |                            |
+i_clk ------> | Clock Divider | --------> o_tick
+i_reset ----> |   Logic       |
+i_enable ---->|                | --------> o_strobe (1-cycle pulse)
+     +----------------------------+
+
+---
+
+## Full Code
+
+```verilog
+`default_nettype none
+
+module counter_1s(
+    input        i_clk,
+    input        i_reset,
+    input        i_enable,
+    output reg   o_tick,
+    output reg   o_strobe
+);
+
+    // Counter Template
+    parameter DIVISOR = 50000000;  // 1 s
+    reg [25:0] counter;            // 2^26 = 67 million > 50 million
+
+    always @(posedge i_clk)
+        if(i_reset) begin
+            counter <= 0;
+            o_tick <= 0;
+        end 
+        else begin
+            if(i_enable) begin
+                // Comparator
+                if(counter == DIVISOR - 1) begin
+                    counter <= 0;
+                    o_tick <= ~o_tick;  // toggle LED
+                    o_strobe <= 1'b1;
+                end 
+                else begin
+                    counter <= counter + 1;
+                    o_strobe <= 1'b0;
+                end
+            end
+        end
+
+endmodule
+
+`default_nettype wire
+```
+
+---
+
+## Line-by-Line Explanation
+
+### Module Definition
+Defines the hardware block named `counter_1s`.
+
+### Inputs
+- **i_clk**: The 50 MHz system clock  
+- **i_reset**: Synchronous reset  
+- **i_enable**: Allows counting to run when high  
+
+### Outputs
+- **o_tick**: Toggles once per second  
+- **o_strobe**: 1‑cycle pulse every second  
+
+### Divider Parameter
+`DIVISOR = 50,000,000` sets the module to count one second of clock cycles.
+
+### Counter Register
+`reg [25:0] counter` stores the current count value.
+
+### Reset Behavior
+When reset is active, the counter and tick output are cleared.
+
+### Counting Behavior
+When enabled, the counter increments once per clock cycle.
+
+### Reaching One Second
+When `counter == DIVISOR - 1`:
+- The counter resets  
+- `o_tick` toggles  
+- `o_strobe` pulses high for one clock cycle  
+
+This pulse signals downstream modules that exactly one second has passed.
+
+---
+
+## Summary
+
+This module converts the 50 MHz FPGA clock into a reliable 1‑second timing signal suitable for digital clocks, timers, and sequencing logic.
+
+
+
+
+
 ## **Explanation**
 - A 1 Hz tick is used to scroll letters forward one position every second.
 - The word **"HELLO"** is stored in a 5‑element array using numeric codes.
