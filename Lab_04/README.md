@@ -1,13 +1,13 @@
 # Lab 4 Report
 
 ## Simulation  
-<img src="/images/Part_1.GIF" width="400">
+<img src="./images/Part_1.GIF" width="400">
 
-<img src="/images/Part_2.GIF" width="400">
+<img src="./images/Part_2.GIF" width="400">
 
-<img src="/images/Part_3.GIF" width="400">
+<img src="./images/Part_3.GIF" width="400">
 
-<img src="/images/Part_4.GIF" width="400">
+<img src="./images/Part_4.GIF" width="400">
 
 
 ## Introduction
