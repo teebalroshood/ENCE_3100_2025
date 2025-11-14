@@ -1,174 +1,194 @@
-# 🔢 Lab 4 – Verilog Counters (DE10-Lite Implementation)
+# Lab 4 Report
 
-**Course:** Digital Logic Design  
-**Lab Objective:** Design and implement various types of counters using Verilog HDL and test them on an FPGA board.  
-**Reference:** Adapted from *Laboratory Exercise 4: Counters (Altera DE2 Series)*
+## Simulation  
+<img src="/images/Part_1.GIF" width="400">
 
-![Project Overview](images/lab4_overview.png)
-> *(Insert an image or diagram showing your FPGA board or overall circuit design.)*
+<img src="/images/Part_2.GIF" width="400">
 
----
+<img src="/images/Part_3.GIF" width="400">
 
-## 📘 Table of Contents
-- [Overview](#overview)
-- [Part I – 8-bit T Flip-Flop Counter](#part-i--8-bit-t-flip-flop-counter)
-- [Part II – Register-based Counter](#part-ii--register-based-counter)
-- [Part III – LPM Counter](#part-iii--lpm-counter)
-- [Part IV – One-Second HEX Display Counter](#part-iv--one-second-hex-display-counter)
-- [Part V – Scrolling “HELLO” Display](#part-v--scrolling-hello-display)
-- [Preparation](#preparation)
-- [Results](#results)
-- [Team Information](#team-information)
+<img src="/images/Part_4.GIF" width="400">
+
+
+## Introduction
+This lab focuses on building different types of counters on the DE10‑Lite FPGA board and displaying their outputs on the 7‑segment HEX displays. Each part of the assignment adds a new feature, starting from a basic T flip‑flop counter and ending with more advanced timing and display control.
+
+Below is the full report with explanations and block diagrams to help visualize the data flow.
 
 ---
 
-## 🧩 Overview
-
-This lab explores the design of **synchronous and asynchronous counters** using **Verilog HDL**, emphasizing their implementation on an **FPGA (DE10-Lite)**.
-
-Students will:
-- Create and simulate different types of counters.
-- Display count values on HEX displays.
-- Compare circuit implementations (manual design, register-based, and LPM).
-
-![Counter Concept](images/counter_concept.png)
-> *(Insert a conceptual diagram showing counter operation or timing.)*
+# **Block Diagram – High-Level System**
+```
+        +-------------------------+
+        |      MAX10 FPGA        |
+        |                         |
+        |   +-----------------+   |
+ SW --->|-->|   Counter(s)    |---|--> LEDR
+        |   +-----------------+   |
+        |             |           |
+        |        +---------+      |
+        |        |  HEX    |------|--> HEX Displays
+        |        |Decoder  |      |
+ KEY -->|--------+---------+      |
+        +-------------------------+
+```
+This diagram shows the general structure used in all parts: inputs (KEY, SW) control a counter, and the results are displayed on the LEDs and HEX displays.
 
 ---
 
-## ⚙️ Part I – 8-bit T Flip-Flop Counter
+# **Part I — 8‑bit T Flip‑Flop Counter**
+This part creates a simple 8‑bit counter using eight T‑flip‑flops connected in a chain.
 
-Design an **8-bit synchronous counter** built from **T flip-flops**, similar to Figure 1 in the lab handout.
+## **Block Diagram – T‑FF Counter**
+```
+      Clock
+        |
+        v
+   +---------+     +---------+     +---------+
+   |  TFF0   | --> |  TFF1   | --> |  TFF2   | --> ... (8 bits)
+   +---------+     +---------+     +---------+
+        |              |               |
+       Q[0]           Q[1]           Q[2] ... Q[7]
+```
+Each T‑flip‑flop toggles when T=1. The least significant stage toggles every clock, and each stage after toggles when all previous bits are 1. This creates a binary counter.
 
-**Steps:**
-1. Create a `t_flipflop` module in Verilog.
-2. Instantiate it 8 times in a top-level counter module.
-3. Connect:
-   - `KEY0` → Clock input  
-   - `SW1` → Enable  
-   - `SW0` → Clear  
-   - `HEX1-0` → Display hexadecimal output
-4. Compile and record:
-   - Logic Elements (LEs)
-   - Maximum frequency (Fmax)
-5. Download and test on the DE10-Lite.
+## **Explanation**
+- `KEY[0]` is treated as a clock input. Because DE10‑Lite buttons are active‑low, the clock is inverted.
+- `SW[1]` enables counting.
+- `SW[0]` acts as a synchronous clear.
+- The 8‑bit output is split into two 4‑bit nibbles and sent to two 7‑segment decoders (HEX1 and HEX0).
+- LEDs mirror the count.
 
-![8-bit Counter Diagram](images/part1.GIF)
-> *(Insert schematic or Quartus block diagram screenshot.)*
-<img src="images/Part_1.GIF" alt="part1" width="500"/>
 ---
 
-## 🧮 Part II – Register-based Counter
+# **Part II — Shift Register Display**
+In this part, the output of a shift register is displayed on two HEX displays.
 
-Implement a **16-bit counter** using a register and simple increment statement:
-
-```verilog
-Q <= Q + 1;
+## **Block Diagram – Shift Register**
+```
+        Clock
+          |
+          v
+  +--------------+
+  | Shift Reg    |
+  |  (8 bits)    |
+  +--------------+
+       |     |
+     Q[3:0] Q[7:4]
+       |     |
+   HEX0    HEX1
 ```
 
-**Tasks:**
-- Compare logic usage (LEs) and Fmax with Part I.
-- Visualize the synthesized structure using **RTL Viewer**.
-- Discuss differences between structural (flip-flop) and behavioral (register-based) designs.
-
-![RTL Comparison](images/part2_rtl.png)
-> *(Insert RTL schematic comparison image.)*
-<img src="images/Part_2.GIF" alt="part2" width="500"/>
----
-
-## 🧰 Part III – LPM Counter
-
-Use a **Library of Parameterized Modules (LPM)** component to create a 16-bit counter.
-
-**Requirements:**
-- Enable and synchronous clear signals.
-- Compare this version with the previous designs regarding structure and performance.
-
-![LPM Wizard Setup](images/part3_lpm.png)
-> *(Insert screenshot of Quartus LPM Counter setup window.)*
-<img src="images/Part_3.GIF" alt="part3" width="500"/>
+## **Explanation**
+- Instead of counting, this circuit shifts bits left or right.
+- The user controls shifting using switches.
+- The HEX displays show the lower and upper halves of the register.
 
 ---
 
-## ⏱️ Part IV – One-Second HEX Display Counter
+# **Part III — LPM Counter**
+Altera/Intel provides an LPM (Library of Parameterized Modules) counter, which simplifies creating counters.
 
-Create a circuit that **flashes digits 0–9** on `HEX0`:
-- Each digit stays for **about one second**.
-- Use a counter incremented by the **50 MHz clock**.
-- All flip-flops must be clocked by the **same 50 MHz source** (no derived clocks).
+## **Block Diagram – LPM Counter**
+```
+       +-------------------+
+Clock-->|   LPM Counter    |---> 8-bit Output
+Clear-->|                   |
+       +-------------------+
+             |      |
+           Q[3:0] Q[7:4]
+             |      |
+          HEX0    HEX1
+```
 
-![One-Second Counter](images/part4_one_sec_counter.png)
-> *(Insert simulation waveform or HEX display photo showing digits changing.)*
-<img src="images/Part_4.GIF" alt="part4" width="500"/>
-
----
-
-## 💡 Part V – Scrolling “HELLO” Display
-
-Display **“HELLO”** on `HEX7–HEX0` in a **ticker-tape fashion**:
-- Shift letters left every ~1 second.
-- Use Table 1 from the lab to define display patterns.
-
-| Clock Cycle | Display Pattern |
-|--------------|-----------------|
-| 0–3 | H E L L O |
-| 4 | E L L O H |
-| 5 | L L O H E |
-| 6 | L O H E L |
-| 7 | O H E L L |
-| 8 | H E L L O |
-
-![HELLO Animation](images/part5_hello_scroll.png)
-> *(Insert GIF or sequence showing scrolling text.)*
-<img src="images/Part_5.GIF" alt="part5" width="500"/>
+## **Explanation**
+- This version uses the vendor‑provided LPM Counter.
+- Clear and enable signals come from switches.
+- The output is again sent to two 7‑segment decoders.
+- This reduces manual flip‑flop wiring.
 
 ---
 
-## 🧠 Preparation
+# **Part IV — One‑Second Counter and Mod‑10 Display**
+This part introduces a time‑based counter.
 
-Before lab:
-- Write Verilog code for Parts I–III.
-- Simulate Part I.
-- Reuse HEX display module from previous labs.
+## **Block Diagram – 1 Hz Tick + Digit Counter**
+```
+         +------------------+
+Clock --->| 1 Hz Generator  |----> tick
+         +------------------+
+                    |
+                    v
+             +--------------+
+             | Digit 0–9    |
+             |   Counter    |
+             +--------------+
+                    |
+                    v
+                seg7Decoder
+                    |
+                    v
+                  HEX0
+```
 
-![Preparation Screenshot](images/preparation.png)
-> *(Insert Quartus project or simulation setup image.)*
-
----
-
-## 📊 Results
-
-| Part | LEs Used | Fmax (MHz) | Notes |
-|------|-----------|-------------|-------|
-| I |  |  |  |
-| II |  |  |  |
-| III |  |  |  |
-| IV |  |  |  |
-| V |  |  |  |
-
-![Results Graph](images/results.png)
-> *(Insert chart or summary screenshots here.)*
-
----
-
-## 👥 Team Information
-
-| Name | Role | Contact |
-|------|------|----------|
-| Your Name | Verilog Developer | your.email@example.com |
-| Lab Partner | Simulation Engineer | partner.email@example.com |
-
-![Team Photo](images/team_photo.png)
-> *(Add team or project photo if desired.)*
+## **Explanation**
+- A 26‑bit counter divides the 50 MHz system clock down to 1 Hz.
+- The output tick increments a digit register every second.
+- The digit automatically resets to 0 after reaching 9.
+- The digit appears on HEX0.
 
 ---
 
-## 📚 License
+# **Part V — Scrolling "HELLO" Display**
+This is the final and most advanced part, combining a tick generator, indexing logic, and letter decoding.
 
-This project is based on educational material © Altera Corporation (2011).  
-All derivative Verilog designs © Your Institution / Team.
+## **Block Diagram – HELLO Scroller**
+```
+                +-------------+
+Clock ---------->| 1 Hz Tick  |----+
+                +-------------+    |
+                                     v
+          Message ROM (HELLO coded as 0,1,2,2,3)
+        +----------------------------------------+
+        | msg[0] msg[1] msg[2] msg[3] msg[4]     |
+        +----------------------------------------+
+                     ^
+                     |
+                 index i
+                     |
+         +-----------------------+
+         |  Scrolling Logic      |
+         | selects msg[i]        |
+         | and msg[i+1]         |
+         +-----------------------+
+             |             |
+             v             v
+        seg7_letter    seg7_letter
+             |             |
+           HEX1         HEX0
+```
+
+## **Explanation**
+- A 1 Hz tick is used to scroll letters forward one position every second.
+- The word **"HELLO"** is stored in a 5‑element array using numeric codes.
+- An index `i` cycles from 0 to 4.
+- The display shows two characters at a time:
+  - Left letter → `msg[i]`
+  - Right letter → `msg[i+1]` (wraps around)
+- `seg7_letter` converts the letter codes into segment signals for HEX0 and HEX1.
 
 ---
 
-> 📝 **Tip:** Keep all screenshots in an `images/` folder and use relative paths like  
-> `![Title](images/example.png)` for proper linking on GitHub.
+# **Conclusion**
+This lab walks through several important FPGA concepts:
+- Building counters from flip‑flops
+- Using shift registers
+- Working with LPM modules
+- Designing clock division for timing
+- Displaying values using 7‑segment decoders
+- Creating animation through index‑based scrolling
+
+Each section builds on the previous one, leading to the final "HELLO" scroller, which combines timing, indexing, and display control.
+
+If you want to add the full code or insert a GIF demonstration, I can include those as well.
+
